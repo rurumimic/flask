@@ -24,7 +24,10 @@ parser.add_argument('time', type=int, help='what time is it: 00')
 @api.route('/hello')
 class HelloWorld(Resource):
     def get(self):
-        return {'hello': 'world'}
+        print(request.args)
+        name = request.args.get('name', default='empty')
+        values = request.args.getlist('values')
+        return {'hello': 'world', 'name': name, 'values': values}
 
 @fruit.route('/apple')
 class FruitApple(Resource):
