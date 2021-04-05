@@ -3,6 +3,9 @@ from flask_cors import CORS
 from flask_restx import Api, Resource, reqparse, fields
 
 from pet import random_age, Pet
+from food.food import Food
+
+from pprint import pprint as pp
 
 app = Flask(__name__)
 CORS(app)
@@ -12,6 +15,7 @@ app.config.SWAGGER_UI_DOC_EXPANSION = 'list'
 # Namespaces
 fruit = api.namespace('fruit', description='my fruits')
 animal = api.namespace('animal', description='my animals')
+shop = api.namespace('shop', description='my shop')
 
 model = api.model('Pet', {
     'name': fields.String(required=True, readonly=True, description='Pet Name'),
@@ -56,6 +60,13 @@ class AnimalPet(Resource):
         args = parser.parse_args()
         print(args)
         return Pet(name=body['name'], age=body['age'])
+
+@shop.route('/<string:name>')
+@shop.param('name', 'apple')
+class FoodShop(Resource):
+    def get(self, name):
+        food = Food()
+        return food.catalog(name)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
