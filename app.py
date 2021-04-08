@@ -16,6 +16,7 @@ app.config.SWAGGER_UI_DOC_EXPANSION = 'list'
 fruit = api.namespace('fruit', description='my fruits')
 animal = api.namespace('animal', description='my animals')
 shop = api.namespace('shop', description='my shop')
+mirror = api.namespace('mirror', description='reflect')
 
 model = api.model('Pet', {
     'name': fields.String(required=True, readonly=True, description='Pet Name'),
@@ -67,6 +68,32 @@ class FoodShop(Resource):
     def get(self, name):
         food = Food()
         return food.catalog(name)
+
+@mirror.route('/')
+@mirror.doc(
+    params = {
+        'Header_Key': {'in': 'header', 'default': 'value', 'schema': {'type': 'string'}, 'description': 'value'},
+        'key': {'in': 'query', 'default': 'value', 'schema': {'type': 'string'}, 'description': 'value'},
+    }
+)
+class Mirror(Resource):
+    def get(self):
+        headers = {k:v for k, v in request.headers.items()}
+        args = request.args.to_dict()
+        return {
+            'headers': headers,
+            'args': args
+        }
+    
+    @api.expect(model)
+    def post(self):
+        headers = {k:v for k, v in request.headers.items()}
+        args = request.args.to_dict()
+        return {
+            'headers': headers,
+            'args': args,
+            'data': request.json,
+        }
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
